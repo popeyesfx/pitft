@@ -6,6 +6,9 @@ Date: 12/08/2017
 
 Author: J Hider
 
+Description: This is a project to setup a pitft resistive touch screen on top of a rev2 b pi.
+            It uses the original pitft screen kit from adafruit.
+
 ___________________________________________________
 
 ___________________________________________________
@@ -22,7 +25,61 @@ ___________________________________________________
 
 Notes:
 
-1.
 
 
+1. Added jpg image to project
+
+2. Assembled screen as per the following web page
+    https://learn.adafruit.com/adafruit-pitft-28-inch-resistive-touchscreen-display-raspberry-pi
+
+3. Downloaded eas install image from
+    https://learn.adafruit.com/adafruit-pitft-28-inch-resistive-touchscreen-display-raspberry-pi/easy-install
+
+4. Burned image to memory card
+
+5. Test run screen works but raspbian desktop is to large for screen unable to see properly. After leaving message
+    on forum was directed to
+    https://forums.adafruit.com/viewtopic.php?f=50&t=95649
+    This shows how to install fbcp to redirect hdmi output to screen
+
+6. Installed FBCP
+    sudo apt-get install cmake
+    git clone https://github.com/tasanakorn/rpi-fbcp
+    cd rpi-fbcp/
+    mkdir build
+    cd build/
+    cmake ..
+    make
+    sudo install fbcp /usr/local/bin/fbcp
+
+7. Tested fbcp, but still had same issue. Also you have to ssh into pi to run fbcp & so need a method to autostart it.
+
+8. Autostart FBCP
+    sudo nano /etc/rc.local
+
+    add line at bottom before exit 0
+    /usr/local/bin/fbcp &
+
+9. splash screen now being displayed over desktop, this was the result of the framebuffer being set to fb1 which
+    is the tft screen buffer by easy install.
+    Modified the /usr/share/X11/xorg.conf.d/99-fbdev.conf file
+        Section "Device"
+        Identifier "display"
+        Driver "fbdev"
+        Option "fbdev" "/dev/fb0"
+        EndSection
+
+    This sets the display buffer to the hdmi one which we are mirroring to the tft.
+
+10. Modify config.txt to force hdmi output even when no screen connected.
+
+    Add these two lines to /boot/config.txt:
+        hdmi_force_hotplug=1
+        hdmi_drive=2
+
+11. Increase resolution to make viewing easier
+    Add this line to bottom of config.txt
+        hdmi_cvt=640 480 60 1 0 0 0
+
+12. Tested output works fine, pixel desktop addjusted to give best viewing
 
